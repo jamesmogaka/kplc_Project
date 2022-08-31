@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:id="@+id/accountInputField"
+        android:layout_width="0dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="32dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="Account NO:"
+        android:inputType="number"
+        app:layout_constraintEnd_toStartOf="@+id/send"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/send"
+        android:layout_width="wrap_content"
+        android:layout_height="59dp"
+        android:layout_marginTop="34dp"
+        android:gravity="center"
+        android:text="@string/send_mess"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnSendMultiple"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="Send Multiple"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/accountInputField" />
+
+    <Button
+        android:id="@+id/retrieve"
+        android:layout_width="131dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:gravity="center"
+        android:text="@string/retrieve_mess"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/btnClear"
+        app:layout_constraintTop_toBottomOf="@+id/accountInputField" />
+
+    <Button
+        android:id="@+id/btnClear"
+        android:layout_width="91dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="clear"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/accountInputField" />
+
+    <Button
+        android:id="@+id/btnRetreiveAccountNos"
+        android:layout_width="186dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="8dp"
+        android:text="GetAccount Nmbers &amp; Send"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/retrieve" />
+
+    <ListView
+        android:id="@+id/contentBox"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnRetreiveAccountNos" />
+</androidx.constraintlayout.widget.ConstraintLayout>

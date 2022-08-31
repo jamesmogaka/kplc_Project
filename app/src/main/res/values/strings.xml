@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">kplc_billing_sms</string>
+    <string name="send_mess">Send</string>
+    <string name="retrieve_mess">Retrieve</string>
+</resources>
