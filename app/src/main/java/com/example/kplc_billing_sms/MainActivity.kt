@@ -11,7 +11,6 @@ import android.provider.Telephony
 import android.widget.*
 import kotlin.system.exitProcess
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -22,10 +21,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
-import org.json.JSONObject
-import org.json.JSONArray
 
 
 open class MainActivity : AppCompatActivity() {
@@ -40,11 +36,6 @@ open class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //Test the post
-        GlobalScope.launch(Dispatchers.Main) {
-            postToServer("http://206.189.207.206/test123.php" ,"initial test")
-        }
-
         // Check the permissions
         checkPermission(Manifest.permission.SEND_SMS,sendSmsCode)
         checkPermission(Manifest.permission.READ_SMS,retrieveSmsCode)
@@ -56,6 +47,7 @@ open class MainActivity : AppCompatActivity() {
         val sendMultiple = findViewById<Button>(R.id.btnSendMultiple)
         val clear = findViewById<Button>(R.id.btnClear)
         val retrieveAccountNumbers = findViewById<Button>(R.id.btnRetreiveAccountNos)
+        val post = findViewById<Button>(R.id.post)
 
         //Set onclick listener for various functionality
         //Send sms to kplc listener
@@ -78,7 +70,15 @@ open class MainActivity : AppCompatActivity() {
         //sendMultiple sms listener
         sendMultiple.setOnClickListener {
             // call the function that sends multiple sms
-            sendMultipleSms()
+            sendMultipleSms(
+                arrayOf<String>(
+                "44573293",
+                "44573319",
+                "44573327",
+                "44573343",
+                "44573368"
+                )
+            )
         }
         //clearInbox functionality listener
         clear.setOnClickListener {
@@ -109,6 +109,14 @@ open class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        post.setOnClickListener{
+            //Test the post
+            GlobalScope.launch(Dispatchers.Main) {
+                val responseStatus = async {
+                    postToServer("http://206.189.207.206/test123.php" ,"initial test")
+                }
+            }
+        }
     }
 
     //Request for the given permission ?????
@@ -120,16 +128,16 @@ open class MainActivity : AppCompatActivity() {
                 this@MainActivity,
                 permission
             )!= PackageManager.PERMISSION_GRANTED
-            ){
-                ActivityCompat.requestPermissions(
-                    this@MainActivity,
-                    arrayOf(permission),
-                    requestCode
-                )
+        ){
+            ActivityCompat.requestPermissions(
+                this@MainActivity,
+                arrayOf(permission),
+                requestCode
+            )
         }
     }
 
-    //Response retrieval 
+    //Response retrieval
     protected fun retrieveSms() {
 
         //Creat the message array to store the messages
@@ -158,7 +166,7 @@ open class MainActivity : AppCompatActivity() {
             this@MainActivity,
             android.R.layout.simple_list_item_1,
             message
-            )
+        )
 
         //CLose the cursor
         cursor?.close()
@@ -167,8 +175,8 @@ open class MainActivity : AppCompatActivity() {
         contentBox.adapter = messageArrayAdapter
     }
 
-    //Sms sending 
-    protected fun sendSms(accountNumber: String) {
+    //Sms sending
+    protected fun sendSms(accountNumber: String): Boolean {
 
         //Initialising the SmsManager to access the sendTextMessage method
         val manager = SmsManager.getDefault()
@@ -188,37 +196,40 @@ open class MainActivity : AppCompatActivity() {
                 "Message sent",
                 Toast.LENGTH_SHORT
             ).show()
+            return true
         }catch (e:Exception){
-            
+
             //Investigate on exception type???????
 
             //Display exception message in a toast
             Toast.makeText(
                 this@MainActivity,
-                "$e :Please fill the account number",
+                "$e",
                 Toast.LENGTH_SHORT
             ).show()
+            return false
         }
     }
     //Sends multiple sms by iteration over an array containing the message body
-    protected fun sendMultipleSms(){
-
-        //declare the array of accountNumbers <String>
-        val accountNumbers = arrayOf<String>(
-            "44573293",
-            "44573319",
-            "44573327",
-            "44573343",
-            "44573368"
-        )
-
+    protected fun sendMultipleSms(accountNumbers: Array<String>):ArrayList<String>{
+        //
+        //Create an array list of storing unsuccessfully sent account numbers
+        val unsuccessfulAccountNumbers = ArrayList<String>()
+        //
         //Iterate over the array and with each iteration call the sendSms function
         //Use either for or forEach to iterate over array
         //
         for(accountNumber in accountNumbers){
-            //call the sendSms function with each iteration
-            sendSms(accountNumber)
+
+            //call the sendSms function with each iteration and test the success of the operation
+            // Continue to next account number if the send was successful
+            if (sendSms(accountNumber)) continue
+            //
+            //if unsuccessful add the account number to the unsuccessful array and go to next
+            else unsuccessfulAccountNumbers.add(accountNumber)
         }
+        //return the unsuccessful send operations
+        return unsuccessfulAccountNumbers
     }
 
     //Delete historical records from the inbox ???????
@@ -248,7 +259,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     // Post large amounts of data to a specified url
-    protected suspend fun postToServer(url: String, messageBody: String){
+    protected suspend fun postToServer(url: String, messageBody: String): HttpStatusCode {
 
         // Create an instance of the client
         val client = HttpClient(CIO)
@@ -257,18 +268,18 @@ open class MainActivity : AppCompatActivity() {
         val response: HttpResponse = client.submitForm (
             //
             //The url to post to
-            url ="http://206.189.207.206/test123.php",
+            url =url,
             //
             //The data to post
             formParameters = Parameters.build {
                 append(
-                    "username",
-                    "james"
+                    "messageContent",
+                    messageBody
                 )
             }
         )
         //
-        //Console lo the respomse body as text
+        //Console log the response body as text
         println(response.bodyAsText())
         //
         // Confirmation toast
@@ -276,7 +287,9 @@ open class MainActivity : AppCompatActivity() {
         //
         // Terminate the client and release holdup resources
         client.close()
-
+        //
+        //Return the status code for examination if the post was successful
+        return response.status
     }
 
     // Check the result of the requestPermission operation

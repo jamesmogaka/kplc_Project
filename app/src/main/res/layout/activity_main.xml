@@ -66,9 +66,10 @@
         android:id="@+id/btnRetreiveAccountNos"
         android:layout_width="186dp"
         android:layout_height="52dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:text="GetAccount Nmbers &amp; Send"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.928"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/retrieve" />
 
@@ -81,4 +82,18 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnRetreiveAccountNos" />
+
+    <Button
+        android:id="@+id/post"
+        android:layout_width="121dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="73dp"
+        android:gravity="center"
+        android:text="Post"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/btnRetreiveAccountNos"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSendMultiple" />
 </androidx.constraintlayout.widget.ConstraintLayout>
