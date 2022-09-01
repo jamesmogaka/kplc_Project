@@ -1,6 +1,10 @@
 package com.example.kplc_billing_sms
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -36,6 +40,9 @@ open class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //Test the broadcast receiver
+        myBroadcastReceiver()
 
         // Check the permissions
         checkPermission(Manifest.permission.SEND_SMS,sendSmsCode)
@@ -134,6 +141,46 @@ open class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    fun myBroadcastReceiver(){
+        //
+        //Context registered broadcast receiver
+        //1.Create intent filter
+        val filter = IntentFilter()
+        //
+        //2.Add the action to the intent filter that we would receive a broadcast on
+        filter.addAction(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)
+        //
+        //3.Create a broadcast receiver object
+        val br: BroadcastReceiver = object :BroadcastReceiver(){
+            override fun onReceive(context: Context?, intent: Intent?) {
+
+                //Check if the broadcast from the android system is about an sms received
+                //If not exit the function
+                if (!intent?.action.equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) return
+
+                //Extract the message from the intent passed by the android system
+                val extractMessages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
+
+                //Iterate over the messages and print he originating address and message body
+                extractMessages.forEach { smsMessage ->
+
+                    //Filter the intents based on the originating address
+                    //Check the origin of the message
+                    if (smsMessage.displayOriginatingAddress == "97771") {
+                        println("${smsMessage.displayOriginatingAddress} -> ${smsMessage.displayMessageBody}")
+                    } else return
+                }
+            }
+
+        }
+        //
+        //4.Register the broadcast receiver
+        registerReceiver(br,filter)
+        //
+        //5.Unregister receiver on destroy
+//        unregisterReceiver(br)
     }
 
     //Request for the given permission ?????
