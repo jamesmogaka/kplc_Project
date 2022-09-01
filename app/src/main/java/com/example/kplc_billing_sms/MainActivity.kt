@@ -8,6 +8,7 @@ import android.telephony.SmsManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.provider.Telephony
+import android.service.carrier.CarrierMessagingService
 import android.widget.*
 import kotlin.system.exitProcess
 import io.ktor.client.*
@@ -58,33 +59,49 @@ open class MainActivity : AppCompatActivity() {
 
             // Value returned is a char sequence convert to string
             val accountNumber = accountInputField.text.toString()
-            sendSms(accountNumber)
+            //
+            //Test if the send was successful
+            if (sendSms("44573319")) {
+                //
+                //Show a toast to alert on the success status
+                Toast.makeText(this, "send successful", Toast.LENGTH_SHORT).show()
+            } else{
+                //
+                //Show a toast to alert on the unsuccessful status
+                Toast.makeText(this, "Unsuccessful send operation", Toast.LENGTH_SHORT).show()
+            }
 
             //Clear the accountInputField
             accountInputField.setText("")
         }
+
         //Read the response from inbox listener
         retrieve.setOnClickListener {
+            //
+            //Call the retrieve method
             retrieveSms()
         }
+
         //sendMultiple sms listener
         sendMultiple.setOnClickListener {
-            // call the function that sends multiple sms
-            sendMultipleSms(
-                arrayOf<String>(
-                "44573293",
-                "44573319",
-                "44573327",
-                "44573343",
-                "44573368"
-                )
-            )
+            //
+            // call the function that sends multiple sms and store return value
+            val sendMultipleResult = sendMultipleSms(arrayOf<String>("44573293","44573319","44573327","44573343","44573368"))
+            //
+            //Test the success of the send multiple operation
+            if(sendMultipleResult.isEmpty()){
+                Toast.makeText(this, "Send multiple successful", Toast.LENGTH_SHORT).show()
+            }
+
         }
+
         //clearInbox functionality listener
         clear.setOnClickListener {
+            //
             //calling the clearInbox function
             clearInbox()
         }
+
         //Get account numbers from serer
         retrieveAccountNumbers.setOnClickListener{
 
@@ -140,7 +157,7 @@ open class MainActivity : AppCompatActivity() {
     //Response retrieval
     protected fun retrieveSms() {
 
-        //Creat the message array to store the messages
+        //Create the message array to store the messages
         val message = ArrayList<String>()
 
         //Define the columns to select
@@ -191,11 +208,6 @@ open class MainActivity : AppCompatActivity() {
                 null,
                 null
             )
-            Toast.makeText(
-                this@MainActivity,
-                "Message sent",
-                Toast.LENGTH_SHORT
-            ).show()
             return true
         }catch (e:Exception){
 
@@ -254,8 +266,6 @@ open class MainActivity : AppCompatActivity() {
         //
         //Return the body of the response as text
         return txt
-//        println(responseBody)
-
     }
 
     // Post large amounts of data to a specified url
