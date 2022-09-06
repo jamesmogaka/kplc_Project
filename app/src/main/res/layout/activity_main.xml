@@ -6,94 +6,104 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/accountInputField"
-        android:layout_width="0dp"
-        android:layout_height="61dp"
-        android:layout_marginTop="32dp"
-        android:ems="10"
-        android:gravity="center"
-        android:hint="Account NO:"
-        android:inputType="number"
-        app:layout_constraintEnd_toStartOf="@+id/send"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/send"
-        android:layout_width="wrap_content"
-        android:layout_height="59dp"
-        android:layout_marginTop="34dp"
+        android:layout_width="144dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
         android:gravity="center"
         android:text="@string/send_mess"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnSendMultiple"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_width="163dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="22dp"
         android:gravity="center_horizontal|center_vertical"
         android:text="Send Multiple"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/accountInputField" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/retrieve"
-        android:layout_width="131dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
+        android:layout_width="144dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
         android:gravity="center"
         android:text="@string/retrieve_mess"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/btnClear"
-        app:layout_constraintTop_toBottomOf="@+id/accountInputField" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/post" />
 
     <Button
         android:id="@+id/btnClear"
-        android:layout_width="91dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="161dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="23dp"
+        android:layout_marginEnd="24dp"
         android:gravity="center"
         android:text="clear"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/accountInputField" />
+        app:layout_constraintTop_toBottomOf="@+id/btnSendMultiple" />
 
     <Button
         android:id="@+id/btnRetreiveAccountNos"
-        android:layout_width="186dp"
-        android:layout_height="52dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="164dp"
+        android:layout_height="53dp"
+        android:layout_marginTop="17dp"
+        android:layout_marginEnd="21dp"
         android:text="GetAccount Nmbers &amp; Send"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.928"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/retrieve" />
-
-    <ListView
-        android:id="@+id/contentBox"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnRetreiveAccountNos" />
+        app:layout_constraintTop_toBottomOf="@+id/btnClear" />
 
     <Button
         android:id="@+id/post"
-        android:layout_width="121dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="1dp"
-        android:layout_marginEnd="73dp"
+        android:layout_width="141dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="Post"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/btnRetreiveAccountNos"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSendMultiple" />
+        app:layout_constraintTop_toBottomOf="@+id/send" />
+
+    <TextView
+        android:id="@+id/txtReportingPanel"
+        android:layout_width="248dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="58dp"
+        android:gravity="center"
+        android:text="status report"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnCancelBroadcastReciever" />
+
+    <Button
+        android:id="@+id/btnBroadcastReciever"
+        android:layout_width="154dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
+        android:text="Broadcast Reciever"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/retrieve" />
+
+    <Button
+        android:id="@+id/btnCancelBroadcastReciever"
+        android:layout_width="158dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center"
+        android:text="Cancel Broadcast Reciever"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnRetreiveAccountNos" />
 </androidx.constraintlayout.widget.ConstraintLayout>

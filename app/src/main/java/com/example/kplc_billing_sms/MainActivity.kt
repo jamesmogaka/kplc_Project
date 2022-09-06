@@ -30,6 +30,9 @@ import kotlinx.serialization.json.*
 
 
 open class MainActivity : AppCompatActivity() {
+    //
+    //initialise the broadcast receiver
+    lateinit var br: BroadcastReceiver
 
     // Initialise  variables useful although the class
     private val sendSmsCode: Int = 1
@@ -40,9 +43,6 @@ open class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        //Test the broadcast receiver
-        myBroadcastReceiver()
 
         // Check the permissions
         checkPermission(Manifest.permission.SEND_SMS,sendSmsCode)
@@ -56,49 +56,42 @@ open class MainActivity : AppCompatActivity() {
         val clear = findViewById<Button>(R.id.btnClear)
         val retrieveAccountNumbers = findViewById<Button>(R.id.btnRetreiveAccountNos)
         val post = findViewById<Button>(R.id.post)
+        val btnBroadcastReceiver = findViewById<Button>(R.id.btnBroadcastReciever)
+        val btnCancelBroadcastReceiver = findViewById<Button>(R.id.btnCancelBroadcastReciever)
+
+        //Initialise a variable for the reporting panel
+        val txtReportingPanel = findViewById<TextView>(R.id.txtReportingPanel)
+
 
         //Set onclick listener for various functionality
         //Send sms to kplc listener
         send.setOnClickListener {
-
-            //Get the accountInputField by its id and retrieving its text attribute
-            val accountInputField: EditText = findViewById(R.id.accountInputField)
-
-            // Value returned is a char sequence convert to string
-            val accountNumber = accountInputField.text.toString()
             //
-            //Test if the send was successful
-            if (sendSms("44573319")) {
-                //
-                //Show a toast to alert on the success status
-                Toast.makeText(this, "send successful", Toast.LENGTH_SHORT).show()
-            } else{
-                //
-                //Show a toast to alert on the unsuccessful status
-                Toast.makeText(this, "Unsuccessful send operation", Toast.LENGTH_SHORT).show()
-            }
+            //Call the function and storing the result
+            val result = sendSms("44573319")
 
-            //Clear the accountInputField
-            accountInputField.setText("")
+            //set the text of the reporting panel to the text
+            result.toString().also { txtReportingPanel.text = it }
         }
 
         //Read the response from inbox listener
         retrieve.setOnClickListener {
             //
-            //Call the retrieve method
-            retrieveSms()
+            //Call the retrieve method and store the result
+            val result = retrieveSms()
+
+            //output the result of the operation in the reporting panel
+            result.toString().also { txtReportingPanel.text = it }
         }
 
         //sendMultiple sms listener
         sendMultiple.setOnClickListener {
             //
             // call the function that sends multiple sms and store return value
-            val sendMultipleResult = sendMultipleSms(arrayOf<String>("44573293","44573319","44573327","44573343","44573368"))
+            val result = sendMultipleSms(arrayOf<String>("44573293","44573319","44573327","44573343","44573368"))
             //
-            //Test the success of the send multiple operation
-            if(sendMultipleResult.isEmpty()){
-                Toast.makeText(this, "Send multiple successful", Toast.LENGTH_SHORT).show()
-            }
+            // Display the output of the operation
+            result.toString().also { txtReportingPanel.text = it }
 
         }
 
@@ -134,16 +127,40 @@ open class MainActivity : AppCompatActivity() {
             }
         }
         post.setOnClickListener{
-            //Test the post
+            //Call the post function and store the return value
             GlobalScope.launch(Dispatchers.Main) {
-                val responseStatus = async {
+                val result = async {
                     postToServer("http://206.189.207.206/test123.php" ,"initial test")
                 }
+            // Display the result in the reporting panel
+            // Await the result of the coroutine
+            // Convert the result to a string then display
+            result.await().toString().also { txtReportingPanel.text  = it }
             }
+        }
+        //
+        //Broadcast receiver
+        btnBroadcastReceiver.setOnClickListener {
+
+            // Start the broadcast receiver
+            val result = myBroadcastReceiver()
+            //
+            //Display result in reporting panel
+            result.toString().also { txtReportingPanel.text = it }
+        }
+        //
+        //Cancel Broadcast receiver
+        btnCancelBroadcastReceiver.setOnClickListener {
+            //
+            // Call the broadcast receiver and store the return value
+            val result = cancelBroadcast()
+            //
+            // Display the output of the above
+            result.toString().also { txtReportingPanel.text = it }
         }
     }
 
-    fun myBroadcastReceiver(){
+    fun myBroadcastReceiver(): Boolean {
         //
         //Context registered broadcast receiver
         //1.Create intent filter
@@ -153,7 +170,7 @@ open class MainActivity : AppCompatActivity() {
         filter.addAction(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)
         //
         //3.Create a broadcast receiver object
-        val br: BroadcastReceiver = object :BroadcastReceiver(){
+        br = object :BroadcastReceiver(){
             override fun onReceive(context: Context?, intent: Intent?) {
 
                 //Check if the broadcast from the android system is about an sms received
@@ -178,9 +195,15 @@ open class MainActivity : AppCompatActivity() {
         //
         //4.Register the broadcast receiver
         registerReceiver(br,filter)
+        return true
+
+    }
+    fun cancelBroadcast(): Boolean {
         //
-        //5.Unregister receiver on destroy
-//        unregisterReceiver(br)
+        //1.Unregister receiver
+        //de-registration should be done in the override of on destroy
+        unregisterReceiver(br)
+        return true
     }
 
     //Request for the given permission ?????
@@ -202,7 +225,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     //Response retrieval
-    protected fun retrieveSms() {
+    protected fun retrieveSms(): Boolean {
 
         //Create the message array to store the messages
         val message = ArrayList<String>()
@@ -234,9 +257,7 @@ open class MainActivity : AppCompatActivity() {
 
         //CLose the cursor
         cursor?.close()
-        //Initialise the contentBox and displaying the messages using the adopter
-        val contentBox = findViewById<ListView>(R.id.contentBox)
-        contentBox.adapter = messageArrayAdapter
+        return true
     }
 
     //Sms sending
