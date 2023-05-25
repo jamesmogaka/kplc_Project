@@ -12,7 +12,6 @@ import android.telephony.SmsManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.provider.Telephony
-import android.service.carrier.CarrierMessagingService
 import android.widget.*
 import kotlin.system.exitProcess
 import io.ktor.client.*
@@ -29,6 +28,8 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 
 
+
+//TODO:Separation of concerns
 open class MainActivity : AppCompatActivity() {
     //
     //initialise the broadcast receiver
@@ -45,9 +46,9 @@ open class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Check the permissions
-        checkPermission(Manifest.permission.SEND_SMS,sendSmsCode)
-        checkPermission(Manifest.permission.READ_SMS,retrieveSmsCode)
-        checkPermission(Manifest.permission.RECEIVE_SMS,3)
+        checkPermission(Manifest.permission.SEND_SMS, sendSmsCode)
+        checkPermission(Manifest.permission.READ_SMS, retrieveSmsCode)
+        checkPermission(Manifest.permission.RECEIVE_SMS, 3)
 
         //Initialise variables and assigning ui buttons by linking them to their ids
         val send = findViewById<Button>(R.id.send)
@@ -88,7 +89,15 @@ open class MainActivity : AppCompatActivity() {
         sendMultiple.setOnClickListener {
             //
             // call the function that sends multiple sms and store return value
-            val result = sendMultipleSms(arrayOf<String>("44573293","44573319","44573327","44573343","44573368"))
+            val result = sendMultipleSms(
+                arrayOf<String>(
+                    "44573293",
+                    "44573319",
+                    "44573327",
+                    "44573343",
+                    "44573368"
+                )
+            )
             //
             // Display the output of the operation
             result.toString().also { txtReportingPanel.text = it }
@@ -103,7 +112,7 @@ open class MainActivity : AppCompatActivity() {
         }
 
         //Get account numbers from serer
-        retrieveAccountNumbers.setOnClickListener{
+        retrieveAccountNumbers.setOnClickListener {
 
             // Scope is an object used for launching coroutines
             // Launch is useful when the coroutine returns nothing
@@ -126,16 +135,16 @@ open class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        post.setOnClickListener{
+        post.setOnClickListener {
             //Call the post function and store the return value
             GlobalScope.launch(Dispatchers.Main) {
                 val result = async {
-                    postToServer("http://206.189.207.206/test123.php" ,"initial test")
+                    postToServer("http://206.189.207.206/test123.php", "initial test")
                 }
-            // Display the result in the reporting panel
-            // Await the result of the coroutine
-            // Convert the result to a string then display
-            result.await().toString().also { txtReportingPanel.text  = it }
+                // Display the result in the reporting panel
+                // Await the result of the coroutine
+                // Convert the result to a string then display
+                result.await().toString().also { txtReportingPanel.text = it }
             }
         }
         //
@@ -169,8 +178,8 @@ open class MainActivity : AppCompatActivity() {
         //2.Add the action to the intent filter that we would receive a broadcast on
         filter.addAction(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)
         //
-        //3.Create a broadcast receiver object
-        br = object :BroadcastReceiver(){
+        //3.Create a broadcast receiver object(Object expression)
+        br = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
 
                 //Check if the broadcast from the android system is about an sms received
@@ -194,10 +203,11 @@ open class MainActivity : AppCompatActivity() {
         }
         //
         //4.Register the broadcast receiver
-        registerReceiver(br,filter)
+        registerReceiver(br, filter)
         return true
 
     }
+
     fun cancelBroadcast(): Boolean {
         //
         //1.Unregister receiver
@@ -207,15 +217,15 @@ open class MainActivity : AppCompatActivity() {
     }
 
     //Request for the given permission ?????
-    protected  fun checkPermission(permission: String,requestCode: Int){
+    protected fun checkPermission(permission: String, requestCode: Int) {
         //Checking for permission and requesting if not granted
         //
         if (
             ContextCompat.checkSelfPermission(
                 this@MainActivity,
                 permission
-            )!= PackageManager.PERMISSION_GRANTED
-        ){
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             ActivityCompat.requestPermissions(
                 this@MainActivity,
                 arrayOf(permission),
@@ -231,7 +241,7 @@ open class MainActivity : AppCompatActivity() {
         val message = ArrayList<String>()
 
         //Define the columns to select
-        val projection = arrayOf("address","body")
+        val projection = arrayOf("address", "body")
         //
         // Query the content provider through the content resolver
         val cursor = contentResolver.query(
@@ -243,17 +253,11 @@ open class MainActivity : AppCompatActivity() {
         )
 
         // Iterate over the cursor and adding results to an array
-        while (cursor?.moveToNext() == true){
+        while (cursor?.moveToNext() == true) {
             val messageBody = cursor.getString(cursor.getColumnIndexOrThrow("body"))
             message.add(messageBody.toString())
         }
 
-        //Create an ArrayAdapter to display the message in the list view
-        val messageArrayAdapter = ArrayAdapter<String>(
-            this@MainActivity,
-            android.R.layout.simple_list_item_1,
-            message
-        )
 
         //CLose the cursor
         cursor?.close()
@@ -277,7 +281,7 @@ open class MainActivity : AppCompatActivity() {
                 null
             )
             return true
-        }catch (e:Exception){
+        } catch (e: Exception) {
 
             //Investigate on exception type???????
 
@@ -290,8 +294,9 @@ open class MainActivity : AppCompatActivity() {
             return false
         }
     }
+
     //Sends multiple sms by iteration over an array containing the message body
-    protected fun sendMultipleSms(accountNumbers: Array<String>):ArrayList<String>{
+    protected fun sendMultipleSms(accountNumbers: Array<String>): ArrayList<String> {
         //
         //Create an array list of storing unsuccessfully sent account numbers
         val unsuccessfulAccountNumbers = ArrayList<String>()
@@ -299,7 +304,7 @@ open class MainActivity : AppCompatActivity() {
         //Iterate over the array and with each iteration call the sendSms function
         //Use either for or forEach to iterate over array
         //
-        for(accountNumber in accountNumbers){
+        for (accountNumber in accountNumbers) {
 
             //call the sendSms function with each iteration and test the success of the operation
             // Continue to next account number if the send was successful
@@ -313,21 +318,21 @@ open class MainActivity : AppCompatActivity() {
     }
 
     //Delete historical records from the inbox ???????
-    protected fun clearInbox(){
-        contentResolver.delete(Telephony.Sms.Inbox.CONTENT_URI,null,null)
+    protected fun clearInbox() {
+        contentResolver.delete(Telephony.Sms.Inbox.CONTENT_URI, null, null)
     }
 
     //Use the ktor library to get data from the server using the given url
-    private suspend fun getServerContent(url :String): String{
+    private suspend fun getServerContent(url: String): String {
         //
         //Create an instance of the client
         val client = HttpClient(CIO)
 
         //Use the client to get a http response
-        val result : HttpResponse = client.get(url)
+        val result: HttpResponse = client.get(url)
 
         //Access the body of the http response
-        val txt: String =result.bodyAsText()
+        val txt: String = result.bodyAsText()
 
         //Close the client
         client.close()
@@ -343,10 +348,10 @@ open class MainActivity : AppCompatActivity() {
         val client = HttpClient(CIO)
 
         // Use the instance to post to the server
-        val response: HttpResponse = client.submitForm (
+        val response: HttpResponse = client.submitForm(
             //
             //The url to post to
-            url =url,
+            url = url,
             //
             //The data to post
             formParameters = Parameters.build {
@@ -378,13 +383,13 @@ open class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         //
-        if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+        if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             //
             //Do nothing if the permission is granted
 
             //Store the results in a global variable(grantResults)?????
 
-        }else{
+        } else {
             //If permission is not granted show a toast and close the application
             Toast.makeText(
                 this@MainActivity,
