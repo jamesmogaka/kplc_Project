@@ -8,33 +8,33 @@
 
     <Button
         android:id="@+id/send"
-        android:layout_width="144dp"
-        android:layout_height="49dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_width="158dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="14dp"
         android:gravity="center"
         android:text="@string/send_mess"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/spInbox" />
 
     <Button
         android:id="@+id/btnSendMultiple"
-        android:layout_width="163dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="22dp"
+        android:layout_width="158dp"
+        android:layout_height="59dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="36dp"
         android:gravity="center_horizontal|center_vertical"
         android:text="Send Multiple"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/spInbox" />
 
     <Button
         android:id="@+id/retrieve"
-        android:layout_width="144dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_width="154dp"
+        android:layout_height="62dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="11dp"
         android:gravity="center"
         android:text="@string/retrieve_mess"
         android:textStyle="bold"
@@ -43,10 +43,10 @@
 
     <Button
         android:id="@+id/btnClear"
-        android:layout_width="161dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="23dp"
-        android:layout_marginEnd="24dp"
+        android:layout_width="158dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="36dp"
         android:gravity="center"
         android:text="clear"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,20 +54,20 @@
 
     <Button
         android:id="@+id/btnRetreiveAccountNos"
-        android:layout_width="164dp"
-        android:layout_height="53dp"
-        android:layout_marginTop="17dp"
-        android:layout_marginEnd="21dp"
+        android:layout_width="156dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="36dp"
         android:text="GetAccount Nmbers &amp; Send"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnClear" />
 
     <Button
         android:id="@+id/post"
-        android:layout_width="141dp"
-        android:layout_height="51dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="156dp"
+        android:layout_height="58dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="Post"
         android:textStyle="bold"
@@ -76,11 +76,16 @@
 
     <TextView
         android:id="@+id/txtReportingPanel"
-        android:layout_width="248dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="58dp"
+        android:layout_width="364dp"
+        android:layout_height="325dp"
+        android:layout_marginTop="22dp"
+        android:layout_marginBottom="12dp"
+        android:fadeScrollbars="true"
         android:gravity="center"
+        android:isScrollContainer="true"
         android:text="status report"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
@@ -88,10 +93,10 @@
 
     <Button
         android:id="@+id/btnBroadcastReciever"
-        android:layout_width="154dp"
-        android:layout_height="64dp"
+        android:layout_width="156dp"
+        android:layout_height="68dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="13dp"
         android:text="Broadcast Reciever"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/retrieve" />
@@ -100,10 +105,23 @@
         android:id="@+id/btnCancelBroadcastReciever"
         android:layout_width="158dp"
         android:layout_height="70dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginTop="13dp"
+        android:layout_marginEnd="36dp"
         android:gravity="center"
         android:text="Cancel Broadcast Reciever"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnRetreiveAccountNos" />
+
+    <Spinner
+        android:id="@+id/spInbox"
+        android:layout_width="350dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="43dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="42dp"
+        android:entries="@array/options"
+        android:spinnerMode="dropdown"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

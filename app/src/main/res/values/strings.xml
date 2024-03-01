@@ -2,4 +2,8 @@
     <string name="app_name">kplc_billing_sms</string>
     <string name="send_mess">Send</string>
     <string name="retrieve_mess">Retrieve</string>
+    <string-array name="options">
+        <item>KPLC</item>
+        <item>MPESA</item>
+    </string-array>
 </resources>

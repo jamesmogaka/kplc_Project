@@ -24,32 +24,38 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 
-
-
-//TODO:Separation of concerns
+//
+//A type to hold the possible options from the spinner
+enum class Options{
+    KPLC,
+    MPESA
+}
+//
+//TODO:Separation of concerns(Using the MVVM architectural model)
 open class MainActivity : AppCompatActivity() {
     //
     //initialise the broadcast receiver
-    lateinit var br: BroadcastReceiver
-
-    // Initialise  variables useful although the class
+    private lateinit var br: BroadcastReceiver
+    //
+    // Custom short Codes used to borrow permissions from the user
     private val sendSmsCode: Int = 1
     private val retrieveSmsCode: Int = 2
-
     //
     //Entry point to the app
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        //
         // Check the permissions
         checkPermission(Manifest.permission.SEND_SMS, sendSmsCode)
         checkPermission(Manifest.permission.READ_SMS, retrieveSmsCode)
         checkPermission(Manifest.permission.RECEIVE_SMS, 3)
-
+        //
         //Initialise variables and assigning ui buttons by linking them to their ids
         val send = findViewById<Button>(R.id.send)
         val retrieve = findViewById<Button>(R.id.retrieve)
@@ -59,11 +65,10 @@ open class MainActivity : AppCompatActivity() {
         val post = findViewById<Button>(R.id.post)
         val btnBroadcastReceiver = findViewById<Button>(R.id.btnBroadcastReciever)
         val btnCancelBroadcastReceiver = findViewById<Button>(R.id.btnCancelBroadcastReciever)
-
+        //
         //Initialise a variable for the reporting panel
         val txtReportingPanel = findViewById<TextView>(R.id.txtReportingPanel)
-
-
+        //
         //Set onclick listener for various functionality
         //Send sms to kplc listener
         send.setOnClickListener {
@@ -74,17 +79,29 @@ open class MainActivity : AppCompatActivity() {
             //set the text of the reporting panel to the text
             result.toString().also { txtReportingPanel.text = it }
         }
-
+        //
         //Read the response from inbox listener
         retrieve.setOnClickListener {
             //
-            //Call the retrieve method and store the result
-            val result = retrieveSms()
-
-            //output the result of the operation in the reporting panel
-            result.toString().also { txtReportingPanel.text = it }
+            //Get the spinner
+            val spInbox = findViewById<Spinner>(R.id.spInbox)
+            //
+            //Get the selected option from the spinner
+            //
+            //Retrieve messages from the selected inbox
+            val result:ArrayList<String>  = when(Options.valueOf(spInbox.selectedItem as String)){
+                    Options.KPLC ->retrieveSms("97771")
+                    Options.MPESA-> retrieveSms("MPESA")
+                else -> ArrayList();
+            }
+            //
+            //Store all the information as a json string
+            val str = Json.encodeToString(result)
+            //
+            //Display the string at the status report section
+            txtReportingPanel.text = str
         }
-
+        //
         //sendMultiple sms listener
         sendMultiple.setOnClickListener {
             //
@@ -101,19 +118,18 @@ open class MainActivity : AppCompatActivity() {
             //
             // Display the output of the operation
             result.toString().also { txtReportingPanel.text = it }
-
         }
-
+        //
         //clearInbox functionality listener
         clear.setOnClickListener {
             //
             //calling the clearInbox function
             clearInbox()
         }
-
+        //
         //Get account numbers from serer
         retrieveAccountNumbers.setOnClickListener {
-
+            //
             // Scope is an object used for launching coroutines
             // Launch is useful when the coroutine returns nothing
             GlobalScope.launch(Dispatchers.Main) {
@@ -168,8 +184,9 @@ open class MainActivity : AppCompatActivity() {
             result.toString().also { txtReportingPanel.text = it }
         }
     }
-
-    fun myBroadcastReceiver(): Boolean {
+    //
+    //
+    private fun myBroadcastReceiver(): Boolean {
         //
         //Context registered broadcast receiver
         //1.Create intent filter
@@ -181,17 +198,17 @@ open class MainActivity : AppCompatActivity() {
         //3.Create a broadcast receiver object(Object expression)
         br = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-
+                //
                 //Check if the broadcast from the android system is about an sms received
                 //If not exit the function
                 if (!intent?.action.equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) return
-
+                //
                 //Extract the message from the intent passed by the android system
                 val extractMessages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
-
+                //
                 //Iterate over the messages and print he originating address and message body
                 extractMessages.forEach { smsMessage ->
-
+                    //
                     //Filter the intents based on the originating address
                     //Check the origin of the message
                     if (smsMessage.displayOriginatingAddress == "97771") {
@@ -202,13 +219,13 @@ open class MainActivity : AppCompatActivity() {
 
         }
         //
-        //4.Register the broadcast receiver
+        //4.Register the broadcast receiver`
         registerReceiver(br, filter)
         return true
 
     }
 
-    fun cancelBroadcast(): Boolean {
+    private fun cancelBroadcast(): Boolean {
         //
         //1.Unregister receiver
         //de-registration should be done in the override of on destroy
@@ -217,7 +234,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     //Request for the given permission ?????
-    protected fun checkPermission(permission: String, requestCode: Int) {
+    private fun checkPermission(permission: String, requestCode: Int) {
         //Checking for permission and requesting if not granted
         //
         if (
@@ -235,11 +252,11 @@ open class MainActivity : AppCompatActivity() {
     }
 
     //Response retrieval
-    protected fun retrieveSms(): Boolean {
-
+    private fun retrieveSms(address:String = "97771"): ArrayList<String> {
+        //
         //Create the message array to store the messages
         val message = ArrayList<String>()
-
+        //
         //Define the columns to select
         val projection = arrayOf("address", "body")
         //
@@ -247,25 +264,26 @@ open class MainActivity : AppCompatActivity() {
         val cursor = contentResolver.query(
             Telephony.Sms.Inbox.CONTENT_URI,
             projection,
-            "address = 97771",
-            null,
+            "address = ?",
+            arrayOf(address),
             Telephony.Sms.Inbox.DEFAULT_SORT_ORDER
         )
-
+        //
         // Iterate over the cursor and adding results to an array
         while (cursor?.moveToNext() == true) {
             val messageBody = cursor.getString(cursor.getColumnIndexOrThrow("body"))
             message.add(messageBody.toString())
         }
-
-
+        //
         //CLose the cursor
         cursor?.close()
-        return true
+        //
+        //Return the collected messages for display
+        return message
     }
-
-    //Sms sending
-    protected fun sendSms(accountNumber: String): Boolean {
+    //
+    //Sms sending to the specified account number
+    private fun sendSms(accountNumber: String): Boolean {
 
         //Initialising the SmsManager to access the sendTextMessage method
         val manager = SmsManager.getDefault()
@@ -296,7 +314,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     //Sends multiple sms by iteration over an array containing the message body
-    protected fun sendMultipleSms(accountNumbers: Array<String>): ArrayList<String> {
+    private fun sendMultipleSms(accountNumbers: Array<String>): ArrayList<String> {
         //
         //Create an array list of storing unsuccessfully sent account numbers
         val unsuccessfulAccountNumbers = ArrayList<String>()
@@ -318,8 +336,8 @@ open class MainActivity : AppCompatActivity() {
     }
 
     //Delete historical records from the inbox ???????
-    protected fun clearInbox() {
-        contentResolver.delete(Telephony.Sms.Inbox.CONTENT_URI, null, null)
+    private fun clearInbox() {
+        contentResolver.delete(Telephony.Sms.Inbox.CONTENT_URI, "address = 97771", null)
     }
 
     //Use the ktor library to get data from the server using the given url
@@ -342,7 +360,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     // Post large amounts of data to a specified url
-    protected suspend fun postToServer(url: String, messageBody: String): HttpStatusCode {
+    private suspend fun postToServer(url: String, messageBody: String): HttpStatusCode {
 
         // Create an instance of the client
         val client = HttpClient(CIO)
@@ -392,7 +410,7 @@ open class MainActivity : AppCompatActivity() {
         } else {
             //If permission is not granted show a toast and close the application
             Toast.makeText(
-                this@MainActivity,
+                this,
                 "Permission denied",
                 Toast.LENGTH_SHORT // Duration of toast
             ).show()
